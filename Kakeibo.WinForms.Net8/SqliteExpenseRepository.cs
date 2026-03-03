@@ -4,7 +4,9 @@ using Microsoft.Data.Sqlite;
 
 namespace Kakeibo.WinForms
 {
-
+    /// <summary>
+    /// SQLiteを使用して支出データを保存するクラス
+    /// </summary>
     internal class SqliteExpenseRepository : IExpenseRepository
     {
         private const string ConnectionString = "Data Source=expenses.db";

@@ -30,10 +30,8 @@
         {
             DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
             DataGridViewCellStyle dataGridViewCellStyle2 = new DataGridViewCellStyle();
-            DataGridViewCellStyle dataGridViewCellStyle3 = new DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Kakeibo));
             kakeiboDataGrid = new DataGridView();
-            No = new DataGridViewTextBoxColumn();
             Id = new DataGridViewTextBoxColumn();
             Date = new DataGridViewTextBoxColumn();
             Category = new DataGridViewTextBoxColumn();
@@ -58,25 +56,18 @@
             // 
             kakeiboDataGrid.AllowUserToAddRows = false;
             kakeiboDataGrid.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            kakeiboDataGrid.Columns.AddRange(new DataGridViewColumn[] { No, Id, Date, Category, Price, Memo });
-            kakeiboDataGrid.Location = new Point(40, 13);
+            kakeiboDataGrid.Columns.AddRange(new DataGridViewColumn[] { Id, Date, Category, Price, Memo });
+            kakeiboDataGrid.Location = new Point(38, 12);
             kakeiboDataGrid.MultiSelect = false;
             kakeiboDataGrid.Name = "kakeiboDataGrid";
-            kakeiboDataGrid.RowHeadersVisible = false;
-            kakeiboDataGrid.RowHeadersWidth = 62;
+            kakeiboDataGrid.RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders;
             kakeiboDataGrid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            kakeiboDataGrid.Size = new Size(1032, 355);
+            kakeiboDataGrid.Size = new Size(1045, 355);
             kakeiboDataGrid.TabIndex = 0;
             kakeiboDataGrid.CellFormatting += kakeiboDataGrid_CellFormatting;
-            // 
-            // No
-            // 
-            dataGridViewCellStyle1.Alignment = DataGridViewContentAlignment.MiddleRight;
-            No.DefaultCellStyle = dataGridViewCellStyle1;
-            No.HeaderText = "No";
-            No.MinimumWidth = 8;
-            No.Name = "No";
-            No.Width = 40;
+            kakeiboDataGrid.CellValidating += kakeiboDataGrid_CellValidating;
+            kakeiboDataGrid.DataError += kakeiboDataGrid_DataError;
+            kakeiboDataGrid.RowPostPaint += kakeiboDataGrid_RowPostPaint;
             // 
             // Id
             // 
@@ -106,10 +97,10 @@
             // Price
             // 
             Price.DataPropertyName = "Price";
-            dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleRight;
-            dataGridViewCellStyle2.Format = "C0";
-            dataGridViewCellStyle2.NullValue = null;
-            Price.DefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle1.Alignment = DataGridViewContentAlignment.MiddleRight;
+            dataGridViewCellStyle1.Format = "C0";
+            dataGridViewCellStyle1.NullValue = null;
+            Price.DefaultCellStyle = dataGridViewCellStyle1;
             Price.HeaderText = "金額";
             Price.MinimumWidth = 8;
             Price.Name = "Price";
@@ -119,8 +110,8 @@
             // 
             Memo.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             Memo.DataPropertyName = "Memo";
-            dataGridViewCellStyle3.WrapMode = DataGridViewTriState.True;
-            Memo.DefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle2.WrapMode = DataGridViewTriState.True;
+            Memo.DefaultCellStyle = dataGridViewCellStyle2;
             Memo.HeaderText = "メモ";
             Memo.MinimumWidth = 8;
             Memo.Name = "Memo";
@@ -144,6 +135,7 @@
             // priceText
             // 
             priceText.Location = new Point(104, 441);
+            priceText.MaxLength = 10;
             priceText.Name = "priceText";
             priceText.Size = new Size(494, 31);
             priceText.TabIndex = 3;
@@ -159,7 +151,7 @@
             // 
             // registerButton
             // 
-            registerButton.Location = new Point(725, 448);
+            registerButton.Location = new Point(724, 449);
             registerButton.Name = "registerButton";
             registerButton.Size = new Size(81, 73);
             registerButton.TabIndex = 5;
@@ -169,7 +161,7 @@
             // 
             // editButton
             // 
-            editButton.Location = new Point(848, 447);
+            editButton.Location = new Point(853, 448);
             editButton.Name = "editButton";
             editButton.Size = new Size(89, 74);
             editButton.TabIndex = 6;
@@ -189,9 +181,10 @@
             // 
             // clearButton
             // 
-            clearButton.Location = new Point(619, 556);
+            clearButton.AutoSize = true;
+            clearButton.Location = new Point(619, 528);
             clearButton.Name = "clearButton";
-            clearButton.Size = new Size(85, 34);
+            clearButton.Size = new Size(77, 62);
             clearButton.TabIndex = 8;
             clearButton.Text = "クリア";
             clearButton.UseVisualStyleBackColor = true;
@@ -251,7 +244,9 @@
             Controls.Add(categoryText);
             Controls.Add(datePicker);
             Controls.Add(kakeiboDataGrid);
+            FormBorderStyle = FormBorderStyle.FixedSingle;
             Icon = (Icon)resources.GetObject("$this.Icon");
+            MaximizeBox = false;
             Name = "Kakeibo";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Kakeibo";
@@ -276,7 +271,6 @@
         private Label label2;
         private Label label3;
         private Label label4;
-        private DataGridViewTextBoxColumn No;
         private DataGridViewTextBoxColumn Id;
         private DataGridViewTextBoxColumn Date;
         private DataGridViewTextBoxColumn Category;

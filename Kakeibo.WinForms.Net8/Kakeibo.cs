@@ -11,7 +11,14 @@ namespace Kakeibo.WinForms.Net8
     /// </summary>
     public partial class Kakeibo : Form
     {
+        /// <summary>
+        /// 家計簿データの保存と読み込みを担当するリポジトリ
+        /// </summary>
         private IExpenseRepository repository;
+
+        /// <summary>
+        /// 一覧表示用のDataTable
+        /// </summary>
         private DataTable table;
 
         /// <summary>
@@ -19,6 +26,7 @@ namespace Kakeibo.WinForms.Net8
         /// </summary>
         public Kakeibo()
         {
+            // フォームの初期化
             InitializeComponent();
 
             // SQLiteの初期化
@@ -83,7 +91,7 @@ namespace Kakeibo.WinForms.Net8
             table.Rows.Clear();
 
             // 取得したデータを1行ずつDataTableに追加する
-            foreach(var expense in items)
+            foreach (var expense in items)
             {
                 table.Rows.Add(
                     expense.Id,
@@ -92,12 +100,6 @@ namespace Kakeibo.WinForms.Net8
                     expense.Price,
                     expense.Memo
                 );
-            }
-
-            // No列を1から連番で振る
-            for(int i = 0; i < kakeiboDataGrid.Rows.Count; i++)
-            {
-                kakeiboDataGrid.Rows[i].Cells["No"].Value = i + 1;
             }
         }
 
@@ -213,43 +215,6 @@ namespace Kakeibo.WinForms.Net8
         }
 
         /// <summary>
-        /// 入力された内容が有効かどうかを確認する
-        /// </summary>
-        /// <param name="price">入力された金額</param>
-        /// <returns>入力が有効な値の場合はtrue、無効な値の場合はfalse</returns>
-        private bool CheckInput(out int price)
-        {
-            // 初期化
-            price = 0;
-
-            // カテゴリが空でないか確認
-            if (string.IsNullOrWhiteSpace(categoryText.Text))
-            {
-                MessageBox.Show(this, "カテゴリを入力してください。", "入力エラー", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return false;
-            }
-
-            // 金額が数値として正しいか確認
-            if (!int.TryParse(priceText.Text, out price))
-            {
-                MessageBox.Show(this, "金額は整数で入力してください。", "入力エラー", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return false;
-            }
-
-            // OKならtrueを返す
-            return true;
-        }
-
-        /// <summary>
-        /// 一覧に表示可能なデータが存在するかどうかを確認する
-        /// </summary>
-        /// <returns>データが存在する場合はtrue、存在しない場合はfalse</returns>
-        private bool HasData()
-        {
-            return kakeiboDataGrid.Rows.Count > 0;
-        }
-
-        /// <summary>
         /// 金額のセルの形式を設定する
         /// </summary>
         /// <param name="sender">DataGridView</param>
@@ -289,6 +254,90 @@ namespace Kakeibo.WinForms.Net8
                     penColor.SelectionForeColor = Color.Black;
                 }
             }
+        }
+
+        /// <summary>
+        /// 常に行のヘッダーに上からの連番を表示する
+        /// </summary>
+        /// <param name="sender">イベントの送信元</param>
+        /// <param name="e">イベントデータ</param>
+        private void kakeiboDataGrid_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e)
+        {
+            // 上からの連番を表示する
+            kakeiboDataGrid.Rows[e.RowIndex].HeaderCell.Value = (e.RowIndex + 1).ToString();
+        }
+
+        /// <summary>
+        /// 入力された金額が10桁以内であることを確認する
+        /// </summary>
+        /// <param name="sender">イベントの送信元</param>
+        /// <param name="e">入力された値</param>
+        private void kakeiboDataGrid_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
+        {
+            // 金額列のチェック
+            if (kakeiboDataGrid.Columns[e.ColumnIndex].Name == "Price")
+            {
+                string input = e.FormattedValue.ToString();
+
+                // 11桁以上なら警告メッセージを表示
+                if (input.Length >= 11)
+                {
+                    MessageBox.Show("10桁以内で入力してください。金額が大きすぎます。");
+                    // 修正されるまで他のセルに移動できないようにする
+                    e.Cancel = true;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 日付として成立しない値が入力された場合にエラーメッセージを表示する
+        /// </summary>
+        /// <param name="sender">イベントの送信元</param>
+        /// <param name="e">イベントデータ</param>
+        private void kakeiboDataGrid_DataError(object sender, DataGridViewDataErrorEventArgs e)
+        {
+            // 日付や数値の形式が正しいかどうか確認
+            MessageBox.Show("入力された値の形式が正しくありません。\n正しい日付（yyyy/mm/dd）を入力してください。");
+
+            // エラーが発生しても例外をスローしないようにする
+            e.ThrowException = false;
+        }
+
+        /// <summary>
+        /// 入力された内容が有効かどうかを確認する
+        /// </summary>
+        /// <param name="price">入力された金額</param>
+        /// <returns>入力が有効な値の場合はtrue、無効な値の場合はfalse</returns>
+        private bool CheckInput(out int price)
+        {
+            // 初期化
+            price = 0;
+
+            // カテゴリが空でないか確認
+            if (string.IsNullOrWhiteSpace(categoryText.Text))
+            {
+                MessageBox.Show(this, "カテゴリを入力してください。", "入力エラー", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return false;
+            }
+
+            // 金額が数値として正しいか確認
+            if (!int.TryParse(priceText.Text, out price))
+            {
+                MessageBox.Show(this, "金額は整数で入力してください。", "入力エラー", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return false;
+            }
+
+            // OKならtrueを返す
+            return true;
+        }
+
+        /// <summary>
+        /// 一覧に表示可能なデータが存在するかどうかを確認する
+        /// </summary>
+        /// <returns>データが存在する場合はtrue、存在しない場合はfalse</returns>
+        private bool HasData()
+        {
+            return kakeiboDataGrid.Rows.Count > 0;
         }
     }
 }

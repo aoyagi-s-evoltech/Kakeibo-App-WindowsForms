@@ -5,10 +5,13 @@ using System.IO;
 
 namespace Kakeibo.WinForms
 {
+    /// <summary>
+    /// XMLファイルを使用して支出データを保存するクラス
+    /// </summary>
     class XmlExpenseRepository : IExpenseRepository
     {
         // 保存先のXMLファイル
-        private const string FilePath = "expence.xml";
+        private const string FilePath = "expenses.xml";
 
         /// <summary>
         /// XMLを読み込むためのDataSet(スキーマ付き)を作成する(SQLiteのCREATE TABLE)
