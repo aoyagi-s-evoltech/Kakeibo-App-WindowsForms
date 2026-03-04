@@ -128,6 +128,16 @@ namespace Kakeibo.WinForms.Net8
             // 登録処理を行った後、一覧を更新する
             repository.Insert(expense);
             Reload();
+
+            // 登録後は一番下の行を選択状態にする
+            if (kakeiboDataGrid.Rows.Count > 0)
+            {
+                // 最後の行のインデックスを取得する
+                int lastRowIndex = kakeiboDataGrid.Rows.Count - 1;
+
+                // 最後の行の「日付(Date)」のセルを選択状態にする
+                kakeiboDataGrid.CurrentCell = kakeiboDataGrid.Rows[lastRowIndex].Cells["Date"];
+            }
         }
 
         /// <summary>
@@ -181,12 +191,23 @@ namespace Kakeibo.WinForms.Net8
                 MessageBox.Show(this, "削除できるデータがありません。", "通知", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
+            // 現在選択されている行のインデックスを取得する
+            int currentIndex = kakeiboDataGrid.CurrentRow.Index;
 
             // 選択された行のIDを取得する
             int id = (int)kakeiboDataGrid.CurrentRow.Cells["Id"].Value;
+
             // 削除処理を行った後、一覧を更新する
             repository.Delete(id);
             Reload();
+
+            // 削除後は、削除された行の前の行を選択状態にする
+            if (kakeiboDataGrid.Rows.Count > 0)
+            {
+                // 一番下を消した時でもエラーにならないよう調整
+                int nextIndex = Math.Max(0, currentIndex - 1);
+                kakeiboDataGrid.CurrentCell = kakeiboDataGrid.Rows[nextIndex].Cells["Date"];
+            }
         }
 
         /// <summary>
@@ -268,38 +289,30 @@ namespace Kakeibo.WinForms.Net8
         }
 
         /// <summary>
-        /// 入力された金額が10桁以内であることを確認する
-        /// </summary>
-        /// <param name="sender">イベントの送信元</param>
-        /// <param name="e">入力された値</param>
-        private void kakeiboDataGrid_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
-        {
-            // 金額列のチェック
-            if (kakeiboDataGrid.Columns[e.ColumnIndex].Name == "Price")
-            {
-                string input = e.FormattedValue.ToString();
-
-                // 11桁以上なら警告メッセージを表示
-                if (input.Length >= 11)
-                {
-                    MessageBox.Show("10桁以内で入力してください。金額が大きすぎます。");
-                    // 修正されるまで他のセルに移動できないようにする
-                    e.Cancel = true;
-                }
-            }
-        }
-
-        /// <summary>
-        /// 日付として成立しない値が入力された場合にエラーメッセージを表示する
+        /// 入力エラーが発生した際にエラーメッセージを表示し、入力を元に戻す
         /// </summary>
         /// <param name="sender">イベントの送信元</param>
         /// <param name="e">イベントデータ</param>
         private void kakeiboDataGrid_DataError(object sender, DataGridViewDataErrorEventArgs e)
         {
-            // 日付や数値の形式が正しいかどうか確認
-            MessageBox.Show("入力された値の形式が正しくありません。\n正しい日付（yyyy/mm/dd）を入力してください。");
+            // 現在の入力を破棄して、セルの値を元に戻す
+            kakeiboDataGrid.CancelEdit();
 
-            // エラーが発生しても例外をスローしないようにする
+            // エラーが発生した列の名前を取得する
+            string columnName = kakeiboDataGrid.Columns[e.ColumnIndex].Name;
+            string message = "入力された値の形式が正しくありません。";
+
+            // 列の名前に応じて、エラーメッセージを表示する
+            if (columnName == "Date")
+            {
+                MessageBox.Show(message + "\n正しい日付（yyyy/mm/dd）を入力してください。", "入力エラー");
+            } 
+            else if(columnName == "Price") 
+            {
+                MessageBox.Show(message + "\n金額は10桁以内の整数で入力してください。", "入力エラー");
+            }
+
+            // アプリの強制終了を防ぐ
             e.ThrowException = false;
         }
 
@@ -320,8 +333,16 @@ namespace Kakeibo.WinForms.Net8
                 return false;
             }
 
+            string pureText = priceText.Text.Replace(",", "").Replace("\"", "").Replace("\\", "").Trim();
+
+            if(pureText.Length >= 10)
+            {
+                MessageBox.Show(this, "金額は10桁以内で入力してください。", "入力エラー", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return false;
+            }
+
             // 金額が数値として正しいか確認
-            if (!int.TryParse(priceText.Text, out price))
+            if (!int.TryParse(pureText, out price))
             {
                 MessageBox.Show(this, "金額は整数で入力してください。", "入力エラー", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return false;

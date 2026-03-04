@@ -28,15 +28,11 @@
         /// </summary>
         private void InitializeComponent()
         {
+            DataGridViewCellStyle dataGridViewCellStyle3 = new DataGridViewCellStyle();
             DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
             DataGridViewCellStyle dataGridViewCellStyle2 = new DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Kakeibo));
             kakeiboDataGrid = new DataGridView();
-            Id = new DataGridViewTextBoxColumn();
-            Date = new DataGridViewTextBoxColumn();
-            Category = new DataGridViewTextBoxColumn();
-            Price = new DataGridViewTextBoxColumn();
-            Memo = new DataGridViewTextBoxColumn();
             datePicker = new DateTimePicker();
             categoryText = new ComboBox();
             priceText = new TextBox();
@@ -49,14 +45,28 @@
             label2 = new Label();
             label3 = new Label();
             label4 = new Label();
+            Id = new DataGridViewTextBoxColumn();
+            Date = new DataGridViewTextBoxColumn();
+            Category = new DataGridViewTextBoxColumn();
+            Price = new DataGridViewTextBoxColumn();
+            Memo = new DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)kakeiboDataGrid).BeginInit();
             SuspendLayout();
             // 
             // kakeiboDataGrid
             // 
             kakeiboDataGrid.AllowUserToAddRows = false;
+            kakeiboDataGrid.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
             kakeiboDataGrid.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             kakeiboDataGrid.Columns.AddRange(new DataGridViewColumn[] { Id, Date, Category, Price, Memo });
+            dataGridViewCellStyle3.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle3.BackColor = SystemColors.Window;
+            dataGridViewCellStyle3.Font = new Font("Yu Gothic UI", 9F);
+            dataGridViewCellStyle3.ForeColor = SystemColors.ControlText;
+            dataGridViewCellStyle3.SelectionBackColor = SystemColors.Highlight;
+            dataGridViewCellStyle3.SelectionForeColor = SystemColors.HighlightText;
+            dataGridViewCellStyle3.WrapMode = DataGridViewTriState.True;
+            kakeiboDataGrid.DefaultCellStyle = dataGridViewCellStyle3;
             kakeiboDataGrid.Location = new Point(38, 12);
             kakeiboDataGrid.MultiSelect = false;
             kakeiboDataGrid.Name = "kakeiboDataGrid";
@@ -65,56 +75,8 @@
             kakeiboDataGrid.Size = new Size(1045, 355);
             kakeiboDataGrid.TabIndex = 0;
             kakeiboDataGrid.CellFormatting += kakeiboDataGrid_CellFormatting;
-            kakeiboDataGrid.CellValidating += kakeiboDataGrid_CellValidating;
             kakeiboDataGrid.DataError += kakeiboDataGrid_DataError;
             kakeiboDataGrid.RowPostPaint += kakeiboDataGrid_RowPostPaint;
-            // 
-            // Id
-            // 
-            Id.DataPropertyName = "Id";
-            Id.HeaderText = "ID";
-            Id.MinimumWidth = 8;
-            Id.Name = "Id";
-            Id.Visible = false;
-            Id.Width = 150;
-            // 
-            // Date
-            // 
-            Date.DataPropertyName = "Date";
-            Date.HeaderText = "日付";
-            Date.MinimumWidth = 8;
-            Date.Name = "Date";
-            Date.Width = 150;
-            // 
-            // Category
-            // 
-            Category.DataPropertyName = "Category";
-            Category.HeaderText = "カテゴリ";
-            Category.MinimumWidth = 8;
-            Category.Name = "Category";
-            Category.Width = 150;
-            // 
-            // Price
-            // 
-            Price.DataPropertyName = "Price";
-            dataGridViewCellStyle1.Alignment = DataGridViewContentAlignment.MiddleRight;
-            dataGridViewCellStyle1.Format = "C0";
-            dataGridViewCellStyle1.NullValue = null;
-            Price.DefaultCellStyle = dataGridViewCellStyle1;
-            Price.HeaderText = "金額";
-            Price.MinimumWidth = 8;
-            Price.Name = "Price";
-            Price.Width = 150;
-            // 
-            // Memo
-            // 
-            Memo.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            Memo.DataPropertyName = "Memo";
-            dataGridViewCellStyle2.WrapMode = DataGridViewTriState.True;
-            Memo.DefaultCellStyle = dataGridViewCellStyle2;
-            Memo.HeaderText = "メモ";
-            Memo.MinimumWidth = 8;
-            Memo.Name = "Memo";
             // 
             // datePicker
             // 
@@ -225,6 +187,54 @@
             label4.Size = new Size(38, 25);
             label4.TabIndex = 12;
             label4.Text = "メモ";
+            // 
+            // Id
+            // 
+            Id.DataPropertyName = "Id";
+            Id.HeaderText = "ID";
+            Id.MinimumWidth = 8;
+            Id.Name = "Id";
+            Id.Visible = false;
+            Id.Width = 150;
+            // 
+            // Date
+            // 
+            Date.DataPropertyName = "Date";
+            Date.HeaderText = "日付";
+            Date.MinimumWidth = 8;
+            Date.Name = "Date";
+            Date.Width = 150;
+            // 
+            // Category
+            // 
+            Category.DataPropertyName = "Category";
+            Category.HeaderText = "カテゴリ";
+            Category.MinimumWidth = 8;
+            Category.Name = "Category";
+            Category.Width = 150;
+            // 
+            // Price
+            // 
+            Price.DataPropertyName = "Price";
+            dataGridViewCellStyle1.Alignment = DataGridViewContentAlignment.MiddleRight;
+            dataGridViewCellStyle1.Format = "C0";
+            dataGridViewCellStyle1.NullValue = null;
+            Price.DefaultCellStyle = dataGridViewCellStyle1;
+            Price.HeaderText = "金額";
+            Price.MaxInputLength = 16;
+            Price.MinimumWidth = 8;
+            Price.Name = "Price";
+            Price.Width = 150;
+            // 
+            // Memo
+            // 
+            Memo.DataPropertyName = "Memo";
+            dataGridViewCellStyle2.WrapMode = DataGridViewTriState.True;
+            Memo.DefaultCellStyle = dataGridViewCellStyle2;
+            Memo.HeaderText = "メモ";
+            Memo.MinimumWidth = 100;
+            Memo.Name = "Memo";
+            Memo.Width = 800;
             // 
             // Kakeibo
             // 
