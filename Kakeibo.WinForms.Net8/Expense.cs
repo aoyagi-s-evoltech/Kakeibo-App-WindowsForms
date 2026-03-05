@@ -2,6 +2,9 @@
 
 namespace Kakeibo.WinForms
 {
+    /// <summary>
+    /// 1件分の支出データを表すクラス
+    /// </summary>
     internal class Expense
     {
         /// <summary>

@@ -9,13 +9,22 @@ namespace Kakeibo.WinForms
     /// </summary>
     internal class SqliteExpenseRepository : IExpenseRepository
     {
+        /// <summary>
+        /// SQLiteの接続文字列
+        /// </summary>
         private const string ConnectionString = "Data Source=expenses.db";
 
+        /// <summary>
+        /// 支出データを全件取得するためのSQL文
+        /// </summary>
         private const string SqlSelectAll = @"
             SELECT id, date, category, price, memo
             FROM expenses;
         ";
 
+        /// <summary>
+        /// expensesテーブルが存在しない場合に新しくテーブル作成するためのSQL文
+        /// </summary>
         private const string SqlCreateTable = @"
             CREATE TABLE IF NOT EXISTS expenses (
                 Id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -26,6 +35,9 @@ namespace Kakeibo.WinForms
             );
         ";
 
+        /// <summary>
+        /// 新しく支出データを追加するためのSQL文
+        /// </summary>
         private const string SqlInsert = @"
             INSERT INTO expenses(date, category, price, memo)
             VALUES(
@@ -36,6 +48,10 @@ namespace Kakeibo.WinForms
                 );
         ";
 
+        /// <summary>
+        /// 既存の支出データを更新するためのSQL文
+        /// Idを指定して、日付・カテゴリ・金額・メモを更新する
+        /// </summary>
         private const string SqlUpdate = @"
             UPDATE expenses
             SET date = @date,
@@ -45,6 +61,9 @@ namespace Kakeibo.WinForms
             WHERE id = @id;
         ";
 
+        /// <summary>
+        /// 指定したIDの支出データを削除するためのSQL文
+        /// </summary>
         private const string SqlDelete = @"
             DELETE FROM expenses
             WHERE Id = @id;
@@ -113,34 +132,29 @@ namespace Kakeibo.WinForms
             var list = new List<Expense>();
 
             // DBへ接続
-            using (var connection = new SqliteConnection(ConnectionString))
+            using var connection = new SqliteConnection(ConnectionString);
+            // 接続開始
+            connection.Open();
+
+            // SQL実行のためのコマンドを作成
+            using var command = connection.CreateCommand();
+            // 全件取得するSELECT文
+            command.CommandText = SqlSelectAll;
+
+            // SQLを実行して結果を読み取る
+            using var reader = command.ExecuteReader();
+
+            while (reader.Read())
             {
-                // 接続開始
-                connection.Open();
-
-                // SQL実行のためのコマンドを作成
-                using (var command = connection.CreateCommand())
+                list.Add(new Expense
                 {
-                    // 全件取得するSELECT文
-                    command.CommandText = SqlSelectAll;
-
-                    // SQLを実行して結果を読み取る
-                    using (var reader = command.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            list.Add(new Expense
-                            {
-                                // DBの値をC#の型に変換
-                                Id = Convert.ToInt32(reader["id"]),
-                                Date = DateTime.Parse(reader["date"].ToString()),
-                                Category = reader["category"].ToString(),
-                                Price = Convert.ToInt32(reader["price"]),
-                                Memo = reader["memo"].ToString()
-                            });
-                        }
-                    }
-                }
+                    // DBの値をC#の型に変換
+                    Id = Convert.ToInt32(reader["id"]),
+                    Date = DateTime.Parse(reader["date"].ToString()),
+                    Category = reader["category"].ToString(),
+                    Price = Convert.ToInt32(reader["price"]),
+                    Memo = reader["memo"].ToString()
+                });
             }
             return list;
         }

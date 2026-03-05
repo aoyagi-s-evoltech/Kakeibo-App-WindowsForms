@@ -229,10 +229,6 @@ namespace Kakeibo.WinForms.Net8
                 priceText.Text = "";
                 memoText.Text = "";
             }
-            else
-            {
-                // クリアしない場合は何もしない
-            }
         }
 
         /// <summary>
@@ -258,11 +254,7 @@ namespace Kakeibo.WinForms.Net8
             var penColor = e.CellStyle;
 
             // 金額がマイナスの値の場合は赤色、正の値の場合は黒色で表示する
-            if (decimal.TryParse(
-                    text,
-                    style,
-                    null,
-                    out decimal price))
+            if (decimal.TryParse(text,style,null,out decimal price))
             {
                 if (price < 0)
                 {
