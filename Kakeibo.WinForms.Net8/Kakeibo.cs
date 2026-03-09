@@ -22,6 +22,20 @@ namespace Kakeibo.WinForms.Net8
         private DataTable table;
 
         /// <summary>
+        /// DataTableの列を表す列番号の定数
+        /// </summary>
+        private enum Columns
+        {
+            Id = 0,
+            Date = 1,
+            Category = 2,
+            Price = 3,
+            Memo = 4
+        }
+
+        private const int MaxPriceDigits = 11;
+
+        /// <summary>
         /// フォームの初期化処理
         /// </summary>
         public Kakeibo()
@@ -291,21 +305,39 @@ namespace Kakeibo.WinForms.Net8
             kakeiboDataGrid.CancelEdit();
 
             // エラーが発生した列の名前を取得する
-            string columnName = kakeiboDataGrid.Columns[e.ColumnIndex].Name;
+            var targetColumn = (Columns)e.ColumnIndex;
             string message = "入力された値の形式が正しくありません。";
 
             // 列の名前に応じて、エラーメッセージを表示する
-            if (columnName == "Date")
+            if (targetColumn == Columns.Date)
             {
                 MessageBox.Show(message + "\n正しい日付（yyyy/mm/dd）を入力してください。", "入力エラー");
             } 
-            else if(columnName == "Price") 
+            else if(targetColumn == Columns.Price) 
             {
-                MessageBox.Show(message + "\n金額は10桁以内の整数で入力してください。", "入力エラー");
+                MessageBox.Show(message + $"\n金額は{MaxPriceDigits - 1}桁以内の整数で入力してください。", "入力エラー");
             }
 
             // アプリの強制終了を防ぐ
             e.ThrowException = false;
+        }
+
+        /// <summary>
+        /// セルの値が確定する前に、入力内容が正しいか検証する
+        /// </summary>
+        private void kakeiboDataGrid_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
+        {
+            // 金額列(Price)のチェック。文字列ではなくEnumで判定
+            if (e.ColumnIndex == (int)Columns.Price)
+            {
+                string input = CleanPriceText(e.FormattedValue.ToString());
+
+                if (input.Length >= MaxPriceDigits)
+                {
+                    MessageBox.Show(this, $"金額は{MaxPriceDigits - 1}桁以内の整数で入力してください。", "入力エラー", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    e.Cancel = true;
+                }
+            }
         }
 
         /// <summary>
@@ -325,11 +357,11 @@ namespace Kakeibo.WinForms.Net8
                 return false;
             }
 
-            string pureText = priceText.Text.Replace(",", "").Replace("\"", "").Replace("\\", "").Trim();
+            string pureText = CleanPriceText(priceText.Text);
 
-            if(pureText.Length >= 10)
+            if (pureText.Length >= MaxPriceDigits)
             {
-                MessageBox.Show(this, "金額は10桁以内で入力してください。", "入力エラー", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(this, $"金額は{MaxPriceDigits - 1}桁以内で入力してください。", "入力エラー", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return false;
             }
 
@@ -351,6 +383,17 @@ namespace Kakeibo.WinForms.Net8
         private bool HasData()
         {
             return kakeiboDataGrid.Rows.Count > 0;
+        }
+
+        /// <summary>
+        /// 金額文字列から記号を除去する
+        /// </summary>
+        /// <param name="target">対象の文字列</param>
+        /// <returns>数字のみの文字列</returns>
+        private string CleanPriceText(string target)
+        {
+            if (string.IsNullOrEmpty(target)) return "";
+            return target.Replace(",", "").Replace("￥", "").Replace("\\", "").Trim();
         }
     }
 }

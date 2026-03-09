@@ -75,6 +75,7 @@
             kakeiboDataGrid.Size = new Size(1045, 355);
             kakeiboDataGrid.TabIndex = 0;
             kakeiboDataGrid.CellFormatting += kakeiboDataGrid_CellFormatting;
+            kakeiboDataGrid.CellValidating += kakeiboDataGrid_CellValidating;
             kakeiboDataGrid.DataError += kakeiboDataGrid_DataError;
             kakeiboDataGrid.RowPostPaint += kakeiboDataGrid_RowPostPaint;
             // 
@@ -228,13 +229,13 @@
             // 
             // Memo
             // 
+            Memo.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
             Memo.DataPropertyName = "Memo";
-            dataGridViewCellStyle2.WrapMode = DataGridViewTriState.True;
+            dataGridViewCellStyle2.WrapMode = DataGridViewTriState.False;
             Memo.DefaultCellStyle = dataGridViewCellStyle2;
             Memo.HeaderText = "メモ";
             Memo.MinimumWidth = 100;
             Memo.Name = "Memo";
-            Memo.Width = 800;
             // 
             // Kakeibo
             // 
