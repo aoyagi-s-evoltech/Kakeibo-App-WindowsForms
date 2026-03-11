@@ -125,10 +125,7 @@ namespace Kakeibo.WinForms.Net8
         private void registerButton_Click(object sender, EventArgs e)
         {
             // 入力内容のチェック
-            if (!CheckInput(out int price))
-            {
-                return;
-            }
+            if (!CheckInput(out int price)) return;
 
             // 問題ないとわかったデータでリポジトリに登録処理を行う
             var expense = new Expense
@@ -169,10 +166,7 @@ namespace Kakeibo.WinForms.Net8
             }
 
             // 入力内容の妥当性をチェック
-            if (!CheckInput(out int price))
-            {
-                return;
-            }
+            if (!CheckInput(out int price)) return;
 
             // 選択された行のIDを取得する
             int id = (int)kakeiboDataGrid.CurrentRow.Cells["Id"].Value;
@@ -254,22 +248,19 @@ namespace Kakeibo.WinForms.Net8
         {
             // 処理しているセルが「金額(Price)」の列でない場合は何もしない
             var targetColumn = kakeiboDataGrid.Columns[e.ColumnIndex];
-            if (targetColumn.Name != "Price")
-            {
-                return;
-            }
+            if (targetColumn.Name != "Price") return;
 
             // セルの値を文字列として取得する
             string text = e.Value.ToString();
             // 「\」「,」「-」などの記号が含まれる場合も数値として正しく解析できるようにする
             var style = System.Globalization.NumberStyles.AllowCurrencySymbol | System.Globalization.NumberStyles.Number;
 
-            // セルのスタイルを取得する
-            var penColor = e.CellStyle;
-
             // 金額がマイナスの値の場合は赤色、正の値の場合は黒色で表示する
             if (decimal.TryParse(text,style,null,out decimal price))
             {
+                // セルのスタイルを取得する
+                var penColor = e.CellStyle;
+
                 if (price < 0)
                 {
                     penColor.ForeColor = Color.Red;
@@ -311,11 +302,11 @@ namespace Kakeibo.WinForms.Net8
             // 列の名前に応じて、エラーメッセージを表示する
             if (targetColumn == Columns.Date)
             {
-                MessageBox.Show(message + "\n正しい日付（yyyy/mm/dd）を入力してください。", "入力エラー");
+                MessageBox.Show($"{message}\n正しい日付（yyyy/mm/dd）を入力してください。", "入力エラー");
             } 
             else if(targetColumn == Columns.Price) 
             {
-                MessageBox.Show(message + $"\n金額は{MaxPriceDigits - 1}桁以内の整数で入力してください。", "入力エラー");
+                MessageBox.Show($"{message}\n金額は{MaxPriceDigits - 1}桁以内の整数で入力してください。", "入力エラー");
             }
 
             // アプリの強制終了を防ぐ
