@@ -12,6 +12,62 @@ namespace Kakeibo.WinForms.Net8
     public partial class Kakeibo : Form
     {
         /// <summary>
+        /// エラーメッセージ表示時のタイトル
+        /// </summary>
+        private const string ErrorTitle = "入力エラー";
+
+        /// <summary>
+        /// 情報メッセージ表示時のタイトル
+        /// </summary>
+        private const string InfoTitle = "通知";
+
+        /// <summary>
+        /// 確認メッセージ表示時のタイトル
+        /// </summary>
+        private const string ConfirmTitle = "確認";
+
+        /// <summary>
+        /// データベースのファイル名
+        /// </summary>
+        private const string DbFileName = "expenses.db";
+
+        /// <summary>
+        /// 金額入力で許可する最大桁数(記号なし)
+        /// </summary>
+        private const int MaxPriceDigits = 11;
+
+        /// <summary>
+        /// DataTableの列を表す列番号の定数
+        /// </summary>
+        private enum Columns
+        {
+            /// <summary>
+            /// ID列(0列目)
+            /// </summary>
+            Id = 0,
+
+            /// <summary>
+            /// 日付列(1列目)
+            /// </summary>
+            Date = 1,
+
+            /// <summary>
+            /// カテゴリ列(2列目)
+            /// </summary>
+            Category = 2,
+
+            /// <summary>
+            /// 金額列(3列目)
+            /// </summary>
+            Price = 3,
+
+            /// <summary>
+            /// メモ列(4列目)
+            /// </summary>
+            Memo = 4
+        }
+
+        /// <summary>
         /// 家計簿データの保存と読み込みを担当するリポジトリ
         /// </summary>
         private IExpenseRepository repository;
@@ -20,20 +76,6 @@ namespace Kakeibo.WinForms.Net8
         /// 一覧表示用のDataTable
         /// </summary>
         private DataTable table;
-
-        /// <summary>
-        /// DataTableの列を表す列番号の定数
-        /// </summary>
-        private enum Columns
-        {
-            Id = 0,
-            Date = 1,
-            Category = 2,
-            Price = 3,
-            Memo = 4
-        }
-
-        private const int MaxPriceDigits = 11;
 
         /// <summary>
         /// フォームの初期化処理
@@ -60,7 +102,7 @@ namespace Kakeibo.WinForms.Net8
         private void Kakeibo_Load(object sender, EventArgs e)
         {
             // 保存用ファイルの有無を確認し、使用するリポジトリを選択
-            if (File.Exists("expenses.db"))
+            if (File.Exists(DbFileName))
             {
                 repository = new SqliteExpenseRepository();
             }
@@ -161,7 +203,7 @@ namespace Kakeibo.WinForms.Net8
             // 行が選択されているかチェック
             if (!HasData())
             {
-                MessageBox.Show(this, "編集できるデータがありません。", "通知", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(this, "編集できるデータがありません。", InfoTitle, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
@@ -196,7 +238,7 @@ namespace Kakeibo.WinForms.Net8
             // 行が選択されているかチェック
             if (!HasData())
             {
-                MessageBox.Show(this, "削除できるデータがありません。", "通知", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(this, "削除できるデータがありません。", InfoTitle, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
             // 現在選択されている行のインデックスを取得する
@@ -226,7 +268,7 @@ namespace Kakeibo.WinForms.Net8
         private void clearButton_Click(object sender, EventArgs e)
         {
             // 確認画面を表示する
-            DialogResult result = MessageBox.Show(this, "入力内容をクリアしますか？", "確認", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            DialogResult result = MessageBox.Show(this, "入力内容をクリアしますか？", ConfirmTitle, MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
             // クリアする場合は入力欄を初期状態に戻す
             if (result == DialogResult.Yes)
@@ -247,7 +289,7 @@ namespace Kakeibo.WinForms.Net8
         private void kakeiboDataGrid_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
             // 処理しているセルが「金額(Price)」の列でない場合は何もしない
-            var targetColumn = kakeiboDataGrid.Columns[e.ColumnIndex];
+            DataGridViewColumn targetColumn = kakeiboDataGrid.Columns[e.ColumnIndex];
             if (targetColumn.Name != "Price") return;
 
             // セルの値を文字列として取得する
@@ -259,7 +301,7 @@ namespace Kakeibo.WinForms.Net8
             if (decimal.TryParse(text,style,null,out decimal price))
             {
                 // セルのスタイルを取得する
-                var penColor = e.CellStyle;
+                DataGridViewCellStyle penColor = e.CellStyle;
 
                 if (price < 0)
                 {
@@ -302,11 +344,11 @@ namespace Kakeibo.WinForms.Net8
             // 列の名前に応じて、エラーメッセージを表示する
             if (targetColumn == Columns.Date)
             {
-                MessageBox.Show($"{message}\n正しい日付（yyyy/mm/dd）を入力してください。", "入力エラー");
+                MessageBox.Show($"{message}\n正しい日付（yyyy/mm/dd）を入力してください。", ErrorTitle);
             } 
             else if(targetColumn == Columns.Price) 
             {
-                MessageBox.Show($"{message}\n金額は{MaxPriceDigits - 1}桁以内の整数で入力してください。", "入力エラー");
+                MessageBox.Show($"{message}\n金額は{MaxPriceDigits - 1}桁以内の整数で入力してください。", ErrorTitle);
             }
 
             // アプリの強制終了を防ぐ
@@ -325,7 +367,7 @@ namespace Kakeibo.WinForms.Net8
 
                 if (input.Length >= MaxPriceDigits)
                 {
-                    MessageBox.Show(this, $"金額は{MaxPriceDigits - 1}桁以内の整数で入力してください。", "入力エラー", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(this, $"金額は{MaxPriceDigits - 1}桁以内の整数で入力してください。", ErrorTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     e.Cancel = true;
                 }
             }
@@ -344,7 +386,7 @@ namespace Kakeibo.WinForms.Net8
             // カテゴリが空でないか確認
             if (string.IsNullOrWhiteSpace(categoryText.Text))
             {
-                MessageBox.Show(this, "カテゴリを入力してください。", "入力エラー", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(this, "カテゴリを入力してください。", ErrorTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return false;
             }
 
@@ -352,14 +394,14 @@ namespace Kakeibo.WinForms.Net8
 
             if (pureText.Length >= MaxPriceDigits)
             {
-                MessageBox.Show(this, $"金額は{MaxPriceDigits - 1}桁以内で入力してください。", "入力エラー", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(this, $"金額は{MaxPriceDigits - 1}桁以内で入力してください。", ErrorTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return false;
             }
 
             // 金額が数値として正しいか確認
             if (!int.TryParse(pureText, out price))
             {
-                MessageBox.Show(this, "金額は整数で入力してください。", "入力エラー", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(this, "金額は整数で入力してください。", ErrorTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return false;
             }
 
