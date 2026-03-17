@@ -87,10 +87,6 @@ namespace Kakeibo.WinForms.Net8
 
             // SQLiteの初期化
             SQLitePCL.Batteries_V2.Init();
-
-            // リポジトリとDataTableの準備
-            repository = new SqliteExpenseRepository();
-            table = new DataTable();
         }
 
         /// <summary>
