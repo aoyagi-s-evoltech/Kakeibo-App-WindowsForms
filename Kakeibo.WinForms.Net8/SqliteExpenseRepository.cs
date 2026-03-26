@@ -144,16 +144,30 @@ namespace Kakeibo.WinForms
             // SQLを実行して結果を読み取る
             using var reader = command.ExecuteReader();
 
+            // カラム名から番号を先に取得しておく(GetOrdinalはカラム名から番号を取得するメソッド)
+            int idIndex = reader.GetOrdinal("id");
+            int dateIndex = reader.GetOrdinal("date");
+            int categoryIndex = reader.GetOrdinal("category");
+            int priceIndex = reader.GetOrdinal("price");
+            int memoIndex = reader.GetOrdinal("memo");
+
             while (reader.Read())
             {
+                // IsDBNullでnull判定
+                int id = reader.IsDBNull(idIndex) ? 0 : reader.GetInt32(idIndex);
+                string dateText = reader.IsDBNull(dateIndex) ? "" : reader.GetString(dateIndex);
+                string category = reader.IsDBNull(categoryIndex) ? "" : reader.GetString(categoryIndex);
+                int price = reader.IsDBNull(priceIndex) ? 0 : reader.GetInt32(priceIndex);
+                string memo = reader.IsDBNull(memoIndex) ? "" : reader.GetString(memoIndex);
+
+                // DBから取得した値をExpenseに詰めてリストへ追加
                 list.Add(new Expense
                 {
-                    // DBの値をC#の型に変換
-                    Id = Convert.ToInt32(reader["id"]),
-                    Date = DateTime.Parse(reader["date"].ToString()),
-                    Category = reader["category"].ToString(),
-                    Price = Convert.ToInt32(reader["price"]),
-                    Memo = reader["memo"].ToString()
+                    Id = id,
+                    Date = string.IsNullOrEmpty(dateText) ? DateTime.MinValue : DateTime.Parse(dateText),
+                    Category = category,
+                    Price = price,
+                    Memo = memo
                 });
             }
             return list;
@@ -165,28 +179,25 @@ namespace Kakeibo.WinForms
         /// <param name="expense">更新内容を含むデータ</param>
         public void Update(Expense expense)
         {
-            using (var connection = new SqliteConnection(ConnectionString))
-            {
-                // 接続開始
-                connection.Open();
+            using var connection = new SqliteConnection(ConnectionString);
+            // 接続開始
+            connection.Open();
 
-                // SQL実行のためのコマンドを作成
-                using (var command = connection.CreateCommand())
-                {
-                    // 指定したIDのデータを更新
-                    command.CommandText = SqlUpdate;
+            // SQL実行のためのコマンドを作成
+            using var command = connection.CreateCommand();
 
-                    // パラメータをSQLに渡す
-                    command.Parameters.AddWithValue("@date", expense.Date.ToString("yyyy-MM-dd"));
-                    command.Parameters.AddWithValue("@category", expense.Category);
-                    command.Parameters.AddWithValue("@price", expense.Price);
-                    command.Parameters.AddWithValue("@memo", expense.Memo);
-                    command.Parameters.AddWithValue("@id", expense.Id);
+            // 指定したIDのデータを更新
+            command.CommandText = SqlUpdate;
 
-                    // UPDATE文の実行
-                    command.ExecuteNonQuery();
-                }
-            }
+            // パラメータをSQLに渡す
+            command.Parameters.AddWithValue("@date", expense.Date.ToString("yyyy-MM-dd"));
+            command.Parameters.AddWithValue("@category", expense.Category);
+            command.Parameters.AddWithValue("@price", expense.Price);
+            command.Parameters.AddWithValue("@memo", expense.Memo);
+            command.Parameters.AddWithValue("@id", expense.Id);
+
+            // UPDATE文の実行
+            command.ExecuteNonQuery();
         }
 
         /// <summary>

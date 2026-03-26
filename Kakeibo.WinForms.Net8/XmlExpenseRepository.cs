@@ -22,12 +22,33 @@ namespace Kakeibo.WinForms
             var dataSet = new DataSet("ExpensesDataSet");
             var table = new DataTable("Expenses");
 
-            // カラムを定義
-            table.Columns.Add("id", typeof(int));
-            table.Columns.Add("date", typeof(DateTime));
-            table.Columns.Add("price", typeof(int));
-            table.Columns.Add("category", typeof(string));
-            table.Columns.Add("memo", typeof(string));
+            // idカラムを定義（主キー）
+            var idColumn = new DataColumn("id", typeof(int));
+            idColumn.AllowDBNull = false;
+            table.Columns.Add(idColumn);
+
+            // dateカラムを定義（必須）
+            var dateColumn = new DataColumn("date", typeof(DateTime));
+            dateColumn.AllowDBNull = false;
+            table.Columns.Add(dateColumn);
+
+            // priceカラムを定義（必須）
+            var priceColumn = new DataColumn("price", typeof(int));
+            priceColumn.AllowDBNull = false;
+            table.Columns.Add(priceColumn);
+
+            // categoryカラムを定義（必須）
+            var categoryColumn = new DataColumn("category", typeof(string));
+            categoryColumn.AllowDBNull = false;
+            table.Columns.Add(categoryColumn);
+
+            // memoカラムを定義（任意）
+            var memoColumn = new DataColumn("memo", typeof(string));
+            memoColumn.AllowDBNull = true;
+            table.Columns.Add(memoColumn);
+
+            // 主キー設定（idを主キーにする）
+            table.PrimaryKey = new DataColumn[] { idColumn };
 
             // DataSetに表を反映
             dataSet.Tables.Add(table);
